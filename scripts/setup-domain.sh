@@ -2,17 +2,17 @@
 # Wire a subdomain to Content Engine (nginx + Let's Encrypt on a shared VPS)
 #
 # Prerequisites:
-#   - DNS A record: content.infrapilot.io → this server's public IP
+#   - DNS A record: content.infrapilot.tech → this server's public IP
 #   - Docker stack running: web on 127.0.0.1:8010 (APP_BIND=127.0.0.1 APP_PORT=8010)
 #   - nginx installed on the host (ports 80/443 already used by other projects — OK)
 #
 # Usage (on the VPS as root):
 #   cd ~/content-engine
-#   sudo DOMAIN=content.infrapilot.io APP_PORT=8010 CERTBOT_EMAIL=you@infrapilot.io bash scripts/setup-domain.sh
+#   sudo DOMAIN=content.infrapilot.tech APP_PORT=8010 CERTBOT_EMAIL=you@infrapilot.tech bash scripts/setup-domain.sh
 
 set -euo pipefail
 
-DOMAIN="${DOMAIN:-content.infrapilot.io}"
+DOMAIN="${DOMAIN:-content.infrapilot.tech}"
 APP_PORT="${APP_PORT:-8010}"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"
 SITE_NAME="content-engine"

@@ -1,4 +1,4 @@
-# Set DOMAIN in .env (e.g. content.infrapilot.io)
+# Set DOMAIN in .env (e.g. content.infrapilot.tech)
 # Caddy obtains HTTPS certificates automatically.
 
 {$DOMAIN} {
