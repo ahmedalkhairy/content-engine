@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     default_timezone: str = "Asia/Jerusalem"
     session_cookie_secure: bool = False
     app_public_url: str = "http://localhost:8000"
+    public_blog_project_slug: str = "infrapilot"
 
     @property
     def storage_dir(self) -> Path:

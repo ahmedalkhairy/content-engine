@@ -233,6 +233,26 @@ def mark_linkedin_published(
     return RedirectResponse(url="/published", status_code=303)
 
 
+@router.post("/{draft_id}/blog")
+def update_blog_visibility(
+    draft_id: int,
+    blog_public: str = Form("false"),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    project: Project = Depends(get_current_project),
+):
+    from app.services.blog_service import set_blog_visibility
+
+    draft = _get_draft(db, draft_id, project)
+    if not draft:
+        return RedirectResponse(url="/drafts", status_code=303)
+
+    public = blog_public.lower() in ("true", "1", "on", "yes")
+    set_blog_visibility(db, draft, public=public)
+    msg = "blog_on" if public else "blog_off"
+    return RedirectResponse(url=f"/drafts/{draft_id}?msg={msg}", status_code=303)
+
+
 @router.get("/{draft_id}/download-image")
 def download_image(
     draft_id: int,

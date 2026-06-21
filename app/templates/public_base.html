@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ brand_name }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ meta_description|default('Server management and DevOps insights.') }}{% endblock %}">
+    {% block meta_extra %}{% endblock %}
+    <link rel="canonical" href="{% block canonical %}{{ site_url }}{{ request.url.path }}{% endblock %}">
+    <link rel="stylesheet" href="/static/public.css">
+</head>
+<body class="public-site">
+    <header class="public-header">
+        <div class="public-container public-header-inner">
+            <a href="/" class="public-logo">
+                <span class="public-logo-icon">⚡</span>
+                <span>{{ brand_name }}</span>
+            </a>
+            <nav class="public-nav">
+                <a href="{{ brand_website }}" target="_blank" rel="noopener">Product</a>
+                <a href="/login" class="public-nav-admin">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="public-main">
+        <div class="public-container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="public-footer">
+        <div class="public-container">
+            <p>&copy; {{ brand_name }}. <a href="{{ brand_website }}">Visit {{ brand_name }}</a></p>
+        </div>
+    </footer>
+</body>
+</html>

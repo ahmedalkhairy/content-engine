@@ -147,3 +147,13 @@ def run_schema_migrations() -> None:
             for col_name, col_def in project_telegram_cols:
                 if col_name not in proj_cols:
                     conn.execute(text(f"ALTER TABLE projects ADD COLUMN {col_name} {col_def}"))
+
+        if "post_drafts" in tables:
+            draft_cols = {c["name"] for c in insp.get_columns("post_drafts")}
+            for col_name, col_def in [
+                ("blog_public", "BOOLEAN DEFAULT 0"),
+                ("blog_slug", "VARCHAR(200) DEFAULT ''"),
+                ("blog_published_at", "DATETIME"),
+            ]:
+                if col_name not in draft_cols:
+                    conn.execute(text(f"ALTER TABLE post_drafts ADD COLUMN {col_name} {col_def}"))

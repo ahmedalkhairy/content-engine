@@ -10,6 +10,10 @@
 <div class="flash flash-success">Approved — you can publish or schedule anytime from the sidebar.</div>
 {% elif flash_msg == 'published' %}
 <div class="flash flash-success">Publish action completed. Check platform results below.</div>
+{% elif flash_msg == 'blog_on' %}
+<div class="flash flash-success">This post is now visible on the <a href="/" target="_blank">public blog</a>.</div>
+{% elif flash_msg == 'blog_off' %}
+<div class="flash flash-success">Removed from public blog.</div>
 {% endif %}
 
 {% if image_error %}
@@ -184,7 +188,26 @@ toggleReviewAction();
             <p>{{ draft.cta }}</p>
         </div>
 
-        {% if draft.status in ('approved', 'ready_to_publish', 'scheduled') %}
+        {% if draft.status in ('approved', 'ready_to_publish', 'scheduled', 'published') %}
+        <div class="section">
+            <h2>Public blog</h2>
+            <p class="help-text">Show this post on the public homepage for SEO.</p>
+            <form method="post" action="/drafts/{{ draft.id }}/blog">
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" name="blog_public" value="true" {% if draft.blog_public %}checked{% endif %}>
+                        Publish on public blog
+                    </label>
+                </div>
+                {% if draft.blog_public and draft.blog_slug %}
+                <p class="help-text">
+                    Live at: <a href="/blog/{{ draft.blog_slug }}" target="_blank">/blog/{{ draft.blog_slug }}</a>
+                </p>
+                {% endif %}
+                <button type="submit" class="btn btn-secondary btn-block">Save blog visibility</button>
+            </form>
+        </div>
+
         <div class="section">
             <h2>Schedule publishing</h2>
             <form method="post" action="/drafts/{{ draft.id }}/schedule">

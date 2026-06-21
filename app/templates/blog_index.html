@@ -1,0 +1,36 @@
+{% extends "public_base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<section class="blog-hero">
+    <h1>{{ brand_name }} Insights</h1>
+    <p class="blog-hero-sub">Server management, DevOps, and infrastructure — practical articles for engineering teams.</p>
+</section>
+
+{% if posts %}
+<section class="blog-grid">
+    {% for post in posts %}
+    <article class="blog-card">
+        {% if post.image_path %}
+        <a href="/blog/{{ post.blog_slug }}" class="blog-card-image">
+            <img src="/blog/{{ post.blog_slug }}/image" alt="{{ post.title }}" loading="lazy">
+        </a>
+        {% endif %}
+        <div class="blog-card-body">
+            {% if post.blog_published_at %}
+            <time datetime="{{ post.blog_published_at.isoformat() }}">{{ post.blog_published_at.strftime('%B %d, %Y') }}</time>
+            {% endif %}
+            <h2><a href="/blog/{{ post.blog_slug }}">{{ post.title }}</a></h2>
+            <p>{{ (post.linkedin_text or post.facebook_text or '')[:180] }}{% if (post.linkedin_text or post.facebook_text or '')|length > 180 %}…{% endif %}</p>
+            <a href="/blog/{{ post.blog_slug }}" class="blog-read-more">Read article →</a>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="blog-empty">
+    <p>No public articles yet. Check back soon.</p>
+</section>
+{% endif %}
+{% endblock %}

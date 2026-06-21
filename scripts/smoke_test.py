@@ -29,6 +29,14 @@ def main() -> int:
     # Public routes
     check("GET /login", client.get("/login"), 200)
 
+    anon = httpx.Client(base_url=BASE, follow_redirects=True, timeout=60.0)
+    r = anon.get("/")
+    if r.status_code == 200 and "Insights" in r.text:
+        passed.append("GET / (public blog)")
+    else:
+        failures.append(f"GET / (public blog): status={r.status_code}")
+    anon.close()
+
     # Login
     resp = client.post("/login", data={"email": EMAIL, "password": PASSWORD})
     if "Sign In" in resp.text or "/login" in str(resp.url):

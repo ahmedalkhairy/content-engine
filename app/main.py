@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.database import init_db
 from app.deps import AuthRedirect
 from app.log_config import configure_logging
-from app.routers import dashboard, drafts, ideas, notifications, projects, published, schedule, settings as settings_router
+from app.routers import blog, dashboard, drafts, ideas, notifications, projects, published, schedule, settings as settings_router
 
 settings = get_settings()
 configure_logging()
@@ -29,6 +29,7 @@ app.add_middleware(
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
+app.include_router(blog.router)
 app.include_router(notifications.router)
 app.include_router(projects.router)
 app.include_router(dashboard.router)
@@ -52,11 +53,6 @@ def startup():
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-@app.get("/")
-def root():
-    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @app.get("/login")

@@ -123,6 +123,9 @@ class PostDraft(Base):
     cta: Mapped[str] = mapped_column(String(500), default="")
     status: Mapped[str] = mapped_column(String(50), default="draft")
     quality_warnings: Mapped[str] = mapped_column(Text, default="")
+    blog_public: Mapped[bool] = mapped_column(Boolean, default=False)
+    blog_slug: Mapped[str] = mapped_column(String(200), default="", index=True)
+    blog_published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()

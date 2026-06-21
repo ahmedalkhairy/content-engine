@@ -1,0 +1,61 @@
+{% extends "public_base.html" %}
+{% block title %}{{ page_title }} — {{ brand_name }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block canonical %}{% if canonical_url %}{{ canonical_url }}{% else %}{{ site_url }}/blog/{{ draft.blog_slug }}{% endif %}{% endblock %}
+
+{% block meta_extra %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ draft.title }}">
+<meta property="og:description" content="{{ meta_description }}">
+<meta property="og:url" content="{{ site_url }}/blog/{{ draft.blog_slug }}">
+{% if image_url %}<meta property="og:image" content="{{ image_url }}">{% endif %}
+<meta name="twitter:card" content="{% if image_url %}summary_large_image{% else %}summary{% endif %}">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ draft.title|tojson }},
+  "description": {{ meta_description|tojson }},
+  "datePublished": "{{ draft.blog_published_at.isoformat() if draft.blog_published_at else draft.created_at.isoformat() }}",
+  "author": { "@type": "Organization", "name": {{ brand_name|tojson }} },
+  "publisher": { "@type": "Organization", "name": {{ brand_name|tojson }} },
+  {% if image_url %}"image": {{ image_url|tojson }},{% endif %}
+  "mainEntityOfPage": "{{ site_url }}/blog/{{ draft.blog_slug }}"
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article class="blog-article">
+    <header class="blog-article-header">
+        <a href="/" class="blog-back">← All articles</a>
+        {% if draft.blog_published_at %}
+        <time datetime="{{ draft.blog_published_at.isoformat() }}">{{ draft.blog_published_at.strftime('%B %d, %Y') }}</time>
+        {% endif %}
+        <h1>{{ draft.title }}</h1>
+        {% if draft.hashtags %}
+        <p class="blog-tags">{{ draft.hashtags }}</p>
+        {% endif %}
+    </header>
+
+    {% if draft.image_path %}
+    <figure class="blog-article-image">
+        <img src="/blog/{{ draft.blog_slug }}/image" alt="{{ draft.title }}">
+    </figure>
+    {% endif %}
+
+    <div class="blog-article-body">{{ body }}</div>
+
+    {% if draft.cta %}
+    <aside class="blog-cta">
+        <p>{{ draft.cta }}</p>
+        <a href="{{ brand_website }}" class="blog-cta-btn" target="_blank" rel="noopener">Learn about {{ brand_name }}</a>
+    </aside>
+    {% else %}
+    <aside class="blog-cta">
+        <a href="{{ brand_website }}" class="blog-cta-btn" target="_blank" rel="noopener">Explore {{ brand_name }}</a>
+    </aside>
+    {% endif %}
+</article>
+{% endblock %}
