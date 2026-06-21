@@ -27,8 +27,11 @@ if [[ ! -f .env ]]; then
   exit 1
 fi
 
-if ! grep -q '^DOMAIN=' .env || grep -q '^DOMAIN=$' .env || grep -q 'DOMAIN=localhost' .env; then
-  echo "WARNING: Set DOMAIN=your-domain.com in .env for HTTPS"
+APP_PORT="$(grep -E '^APP_PORT=' .env 2>/dev/null | cut -d= -f2 || true)"
+APP_PORT="${APP_PORT:-8010}"
+
+if ! grep -q '^APP_PUBLIC_URL=' .env || grep -q 'YOUR_SERVER_IP' .env; then
+  echo "WARNING: Set APP_PUBLIC_URL in .env (Telegram links need a reachable URL)"
 fi
 
 mkdir -p storage/images storage/logs
@@ -47,7 +50,8 @@ fi
 
 echo ""
 echo "Deploy complete."
-echo "  Dashboard: https://\$(grep ^DOMAIN= .env | cut -d= -f2)  (or http://SERVER_IP if DOMAIN not set)"
+echo "  Dashboard: http://SERVER_IP:${APP_PORT}"
+echo "  (or APP_PUBLIC_URL from .env if set)"
 echo ""
 echo "First-time setup (if not done yet):"
 echo "  docker compose -f $COMPOSE_FILE exec web python -m app create-admin --email YOU@example.com --password YOURPASS"
