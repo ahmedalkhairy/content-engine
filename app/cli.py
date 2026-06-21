@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.auth import hash_password
 from app.config import get_settings
 from app.database import SessionLocal, init_db
+from app.log_config import configure_logging
 from app.models import ContentIdea, PostDraft, User
 from app.services.ai_generator import AIGeneratorService
 from app.services.image_service import ImageGenerationService
@@ -166,6 +167,7 @@ def run_automation_cmd(
 @app.command("worker")
 def worker(interval: int = typer.Option(60, "--interval", help="Check interval in seconds")):
     """Run the scheduler worker loop."""
+    configure_logging()
     init_db()
     db = get_db()
     try:

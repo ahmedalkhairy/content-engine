@@ -1,6 +1,5 @@
 """FastAPI application entry point."""
 
-import logging
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -11,19 +10,11 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.config import get_settings
 from app.database import init_db
 from app.deps import AuthRedirect
+from app.log_config import configure_logging
 from app.routers import dashboard, drafts, ideas, notifications, projects, published, schedule, settings as settings_router
 
 settings = get_settings()
-settings.logs_dir.mkdir(parents=True, exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(settings.logs_dir / "app.log", encoding="utf-8"),
-    ],
-)
+configure_logging()
 
 app = FastAPI(title="Content Engine", version="1.1.0")
 app.add_middleware(

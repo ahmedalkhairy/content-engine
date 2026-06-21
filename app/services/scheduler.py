@@ -164,11 +164,12 @@ class SchedulerService:
         while True:
             try:
                 auto_count = automation.process_all_projects()
-                if auto_count:
-                    logger.info("Automation scheduled %d posts", auto_count)
                 count = self.process_due_posts()
-                if count:
-                    logger.info("Processed %d scheduled posts", count)
+                logger.info(
+                    "Worker cycle: automation_generated=%d, scheduled_processed=%d",
+                    auto_count,
+                    count,
+                )
             except Exception:
                 logger.exception("Worker loop error")
             time.sleep(interval_seconds)
