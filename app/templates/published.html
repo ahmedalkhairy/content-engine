@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Published - InfraPilot Content Engine{% endblock %}
+{% block content %}
+<h1>Published Posts</h1>
+<p class="subtitle">Publishing history and status</p>
+
+{% if posts %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Platform</th>
+            <th>Draft</th>
+            <th>Published At</th>
+            <th>Status</th>
+            <th>URL</th>
+            <th>Error</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in posts %}
+        <tr>
+            <td>{{ post.platform }}</td>
+            <td><a href="/drafts/{{ post.draft_id }}">{{ post.draft.title if post.draft else 'Draft #' ~ post.draft_id }}</a></td>
+            <td>{{ post.published_at.strftime('%Y-%m-%d %H:%M') if post.published_at else '-' }}</td>
+            <td><span class="badge badge-{{ post.status }}">{{ post.status }}</span></td>
+            <td>{% if post.external_url %}<a href="{{ post.external_url }}" target="_blank">View</a>{% else %}-{% endif %}</td>
+            <td class="error-cell">{{ post.error_message[:80] if post.error_message else '' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">No published posts yet.</p>
+{% endif %}
+{% endblock %}

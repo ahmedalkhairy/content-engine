@@ -1,0 +1,31 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Runtime data
+storage/infra_content.db
+storage/images/**/*
+!storage/images/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+
+# IDE / OS
+.cursor/
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Playwright browsers (optional local)
+.playwright/

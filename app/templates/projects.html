@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Projects - Content Engine{% endblock %}
+{% block content %}
+<h1>Projects</h1>
+<p class="subtitle">Manage brands, AI providers, and publishing settings per project</p>
+
+<div class="section">
+    <h2>Create New Project</h2>
+    <form method="post" action="/projects/create" class="form-grid">
+        <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" name="name" required placeholder="My SaaS Product">
+        </div>
+        <div class="form-group">
+            <label>Brand Name</label>
+            <input type="text" name="brand_name" placeholder="Used in generated posts">
+        </div>
+        <div class="form-group">
+            <label>Website</label>
+            <input type="url" name="website" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+            <label>Default Audience</label>
+            <input type="text" name="default_target_audience" value="Professionals">
+        </div>
+        <div class="form-group">
+            <label>LLM Provider</label>
+            <select name="llm_provider">
+                <option value="mock">Mock (no API)</option>
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Google Gemini</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>LLM Model</label>
+            <input type="text" name="llm_model" placeholder="gemini-2.0-flash or gpt-4.1-mini">
+        </div>
+        <div class="form-group">
+            <label>Image Provider</label>
+            <select name="image_provider">
+                <option value="mock">Mock (PIL placeholder)</option>
+                <option value="openai">OpenAI DALL-E</option>
+                <option value="gemini">Google Gemini</option>
+            </select>
+        </div>
+        <div class="form-group full-width">
+            <label>Product Context</label>
+            <textarea name="product_context" rows="4" placeholder="Describe the product, value proposition, and audience..."></textarea>
+        </div>
+        <div class="form-group checkbox-group">
+            <label><input type="checkbox" name="seed_content" value="true"> Seed sample ideas</label>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create Project</button>
+        </div>
+    </form>
+</div>
+
+{% for project in projects %}
+<div class="section project-card">
+    <h2>{{ project.name }} <span class="badge badge-draft">{{ project.slug }}</span></h2>
+    <form method="post" action="/projects/{{ project.id }}/update">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Project Name</label>
+                <input type="text" name="name" value="{{ project.name }}" required>
+            </div>
+            <div class="form-group">
+                <label>Brand Name</label>
+                <input type="text" name="brand_name" value="{{ project.brand_name }}">
+            </div>
+            <div class="form-group">
+                <label>Website</label>
+                <input type="text" name="website" value="{{ project.website }}">
+            </div>
+            <div class="form-group">
+                <label>Default Audience</label>
+                <input type="text" name="default_target_audience" value="{{ project.default_target_audience }}">
+            </div>
+            <div class="form-group">
+                <label>Default Hashtags</label>
+                <input type="text" name="default_hashtags" value="{{ project.default_hashtags }}">
+            </div>
+            <div class="form-group">
+                <label>Timezone</label>
+                <input type="text" name="default_timezone" value="{{ project.default_timezone or 'Asia/Jerusalem' }}">
+            </div>
+        </div>
+
+        <h3>Brand Voice</h3>
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label>Product Context</label>
+                <textarea name="product_context" rows="4">{{ project.product_context }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Tone (one per line)</label>
+                <textarea name="brand_tone" rows="4">{{ project.brand_tone }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Avoid (one per line)</label>
+                <textarea name="brand_avoid" rows="4">{{ project.brand_avoid }}</textarea>
+            </div>
+            <div class="form-group full-width">
+                <label>Positioning (one per line)</label>
+                <textarea name="brand_positioning" rows="3">{{ project.brand_positioning }}</textarea>
+            </div>
+        </div>
+
+        <h3>AI Providers</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>LLM Provider</label>
+                <select name="llm_provider">
+                    <option value="mock" {% if project.llm_provider == 'mock' or not project.llm_provider %}selected{% endif %}>Mock</option>
+                    <option value="openai" {% if project.llm_provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                    <option value="gemini" {% if project.llm_provider == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>LLM Model</label>
+                <input type="text" name="llm_model" value="{{ project.llm_model }}" placeholder="gemini-2.0-flash">
+            </div>
+            <div class="form-group">
+                <label>OpenAI API Key</label>
+                <input type="password" name="openai_api_key" value="{{ '••••••••' if project.openai_api_key else '' }}" placeholder="sk-...">
+            </div>
+            <div class="form-group">
+                <label>Gemini API Key</label>
+                <input type="password" name="gemini_api_key" value="{{ '••••••••' if project.gemini_api_key else '' }}" placeholder="AI...">
+            </div>
+            <div class="form-group">
+                <label>Image Provider</label>
+                <select name="image_provider">
+                    <option value="mock" {% if project.image_provider == 'mock' or not project.image_provider %}selected{% endif %}>Mock</option>
+                    <option value="openai" {% if project.image_provider == 'openai' %}selected{% endif %}>OpenAI DALL-E</option>
+                    <option value="gemini" {% if project.image_provider == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gemini Image Model</label>
+                <input type="text" name="gemini_image_model" value="{{ project.gemini_image_model or 'gemini-2.5-flash-image' }}">
+            </div>
+        </div>
+
+        <h3>Publishing</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Facebook Page ID</label>
+                <input type="text" name="facebook_page_id" value="{{ project.facebook_page_id }}">
+            </div>
+            <div class="form-group">
+                <label>Facebook Access Token</label>
+                <input type="password" name="facebook_access_token" value="{{ '••••••••' if project.facebook_access_token else '' }}">
+            </div>
+            <div class="form-group">
+                <label>LinkedIn Mode</label>
+                <select name="linkedin_mode">
+                    <option value="manual" {% if project.linkedin_mode == 'manual' %}selected{% endif %}>Manual</option>
+                    <option value="api" {% if project.linkedin_mode == 'api' %}selected{% endif %}>API (placeholder)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Telegram Bot Token</label>
+                <input type="password" name="telegram_bot_token" value="{{ '••••••••' if project.telegram_bot_token else '' }}">
+            </div>
+            <div class="form-group">
+                <label>Telegram Chat ID</label>
+                <input type="text" name="telegram_chat_id" value="{{ project.telegram_chat_id }}">
+            </div>
+            <div class="form-group checkbox-group">
+                <label><input type="checkbox" name="auto_publish_enabled" value="true" {% if project.auto_publish_enabled %}checked{% endif %}> Auto publish enabled</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Project Settings</button>
+    </form>
+</div>
+{% endfor %}
+{% endblock %}

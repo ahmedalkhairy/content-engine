@@ -1,0 +1,11 @@
+# Set DOMAIN in .env (e.g. content.infrapilot.io)
+# Caddy obtains HTTPS certificates automatically.
+
+{$DOMAIN} {
+	reverse_proxy web:8000
+}
+
+# Optional: redirect www → apex (uncomment and set DOMAIN=yourdomain.com)
+# www.{$DOMAIN} {
+# 	redir https://{$DOMAIN}{uri} permanent
+# }

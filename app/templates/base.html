@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Content Engine{% endblock %}</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-name">Content Engine</span>
+            <span class="brand-sub">Multi-Project</span>
+        </div>
+
+        {% if current_project is defined and current_project %}
+        <form method="post" action="/projects/switch" class="project-switcher">
+            <label for="project_id">Active project</label>
+            <select id="project_id" name="project_id" onchange="this.form.submit()">
+                {% for p in projects %}
+                <option value="{{ p.id }}" {% if p.id == current_project.id %}selected{% endif %}>{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% endif %}
+
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="{% if request.url.path == '/dashboard' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="/ideas" class="{% if '/ideas' in request.url.path %}active{% endif %}">Ideas</a></li>
+            <li><a href="/drafts" class="{% if '/drafts' in request.url.path %}active{% endif %}">Drafts</a></li>
+            <li><a href="/schedule" class="{% if '/schedule' in request.url.path %}active{% endif %}">Schedule</a></li>
+            <li><a href="/published" class="{% if '/published' in request.url.path %}active{% endif %}">Published</a></li>
+            <li><a href="/notifications" class="{% if '/notifications' in request.url.path %}active{% endif %}">Notifications</a></li>
+            <li><a href="/projects" class="{% if '/projects' in request.url.path %}active{% endif %}">Projects</a></li>
+        </ul>
+        <div class="nav-footer">
+            {% if user %}<span class="user-email">{{ user.email }}</span>{% endif %}
+            <a href="/logout" class="logout-link">Logout</a>
+        </div>
+    </nav>
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+    <script>
+        function copyText(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                navigator.clipboard.writeText(el.innerText || el.value);
+                alert('Copied to clipboard!');
+            }
+        }
+        function toggleEdit(id) {
+            const row = document.getElementById('edit-' + id);
+            if (row) row.style.display = row.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

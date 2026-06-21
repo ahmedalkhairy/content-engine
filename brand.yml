@@ -1,0 +1,20 @@
+brand_name: InfraPilot
+tone:
+  - clear
+  - technical but simple
+  - founder-led
+  - trustworthy
+  - practical
+  - security-aware
+avoid:
+  - hype
+  - fake guarantees
+  - overpromising
+  - too much jargon
+  - generic AI-sounding posts
+positioning:
+  - server management without exposing SSH
+  - outbound-only agent
+  - centralized visibility
+  - secure operations
+  - automation-ready infrastructure

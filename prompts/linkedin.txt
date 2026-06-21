@@ -1,0 +1,30 @@
+Write a LinkedIn post based on the content idea below.
+
+Requirements:
+- Short, punchy, scroll-stopping — NOT a long essay
+- 70 to 130 words max (excluding hashtags)
+- Strong hook in line 1 (question, bold claim, or relatable pain point)
+- Use 3–6 relevant emojis naturally (hook, bullets, CTA) — feel human, not spammy
+- Short paragraphs: 1–2 sentences each. Use line breaks for readability
+- 2–4 bullet points max if listing tips (use • or emoji bullets)
+- Conversational and engaging — write like a real practitioner sharing insight, not a press release
+- Educational first, not salesy. Mention {brand_name} once, naturally
+- End with ONE question to spark comments OR a soft CTA
+- 3–5 hashtags on the last line only
+
+Avoid: walls of text, corporate jargon, "In today's fast-paced world", long introductions
+
+Content idea:
+Title: {title}
+Topic: {topic}
+Angle: {angle}
+Target audience: {target_audience}
+Notes: {notes}
+
+Respond in JSON format:
+{{
+  "title": "short internal title",
+  "linkedin_text": "full post text with line breaks and emojis; hashtags on last line",
+  "hashtags": "comma-separated hashtags without #",
+  "cta": "soft call to action or engagement question"
+}}

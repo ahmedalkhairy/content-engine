@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ current_project.name }}{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="subtitle">{{ current_project.name }} — content overview</p>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ stats.total_drafts }}</span>
+        <span class="stat-label">Drafts</span>
+    </div>
+    <div class="stat-card stat-approved">
+        <span class="stat-value">{{ stats.approved }}</span>
+        <span class="stat-label">Approved</span>
+    </div>
+    <div class="stat-card stat-scheduled">
+        <span class="stat-value">{{ stats.scheduled }}</span>
+        <span class="stat-label">Scheduled</span>
+    </div>
+    <div class="stat-card stat-published">
+        <span class="stat-value">{{ stats.published }}</span>
+        <span class="stat-label">Published</span>
+    </div>
+    <div class="stat-card stat-failed">
+        <span class="stat-value">{{ stats.failed }}</span>
+        <span class="stat-label">Failed</span>
+    </div>
+    <div class="stat-card stat-ready">
+        <span class="stat-value">{{ stats.ready_to_publish }}</span>
+        <span class="stat-label">Ready to Publish</span>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Upcoming Scheduled Posts</h2>
+    {% if stats.upcoming_scheduled %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Draft</th>
+                <th>Platforms</th>
+                <th>Scheduled At</th>
+                <th>Auto Publish</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in stats.upcoming_scheduled %}
+            <tr>
+                <td><a href="/drafts/{{ item.draft_id }}">{{ item.draft.title if item.draft else 'Draft #' ~ item.draft_id }}</a></td>
+                <td>{{ item.platforms }}</td>
+                <td>{{ item.scheduled_at.strftime('%Y-%m-%d %H:%M') if item.scheduled_at else '-' }}</td>
+                <td>{{ 'Yes' if item.auto_publish else 'No' }}</td>
+                <td><span class="badge badge-{{ item.status }}">{{ item.status }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No upcoming scheduled posts.</p>
+    {% endif %}
+</div>
+
+<div class="quick-actions">
+    <a href="/ideas" class="btn btn-secondary">Manage Ideas</a>
+    <a href="/drafts" class="btn btn-secondary">Review Drafts</a>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Ideas - InfraPilot Content Engine{% endblock %}
+{% block content %}
+<h1>Content Ideas</h1>
+<p class="subtitle">Manage topics and angles for content generation</p>
+
+{% if generate_error %}
+<div class="alert alert-error">Generation failed: {{ generate_error }}</div>
+{% endif %}
+
+<div class="section">
+    <h2>Add New Idea</h2>
+    <form method="post" action="/ideas/create" class="form-grid">
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" required placeholder="What if you could manage servers without exposing SSH?">
+        </div>
+        <div class="form-group">
+            <label>Topic</label>
+            <input type="text" name="topic" placeholder="SSH Exposure">
+        </div>
+        <div class="form-group">
+            <label>Angle</label>
+            <input type="text" name="angle" placeholder="Security-first server management">
+        </div>
+        <div class="form-group">
+            <label>Target Audience</label>
+            <input type="text" name="target_audience" value="DevOps engineers">
+        </div>
+        <div class="form-group">
+            <label>Platform</label>
+            <select name="platform_preference">
+                <option value="both">Both</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="facebook">Facebook</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Priority (1-10)</label>
+            <input type="number" name="priority" value="5" min="1" max="10">
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="new">New</option>
+                <option value="approved">Approved</option>
+                <option value="drafted">Drafted</option>
+            </select>
+        </div>
+        <div class="form-group full-width">
+            <label>Notes</label>
+            <textarea name="notes" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Add Idea</button>
+        </div>
+    </form>
+</div>
+
+<div class="section">
+    <h2>All Ideas ({{ ideas|length }})</h2>
+    {% if ideas %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Topic</th>
+                <th>Platform</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idea in ideas %}
+            <tr>
+                <td>{{ idea.title }}</td>
+                <td>{{ idea.topic }}</td>
+                <td>{{ idea.platform_preference }}</td>
+                <td>{{ idea.priority }}</td>
+                <td><span class="badge badge-{{ idea.status }}">{{ idea.status }}</span></td>
+                <td class="actions">
+                    <form method="post" action="/ideas/{{ idea.id }}/generate" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-primary">Generate</button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEdit({{ idea.id }})">Edit</button>
+                    <form method="post" action="/ideas/{{ idea.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this idea?')">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr id="edit-{{ idea.id }}" class="edit-row" style="display:none">
+                <td colspan="6">
+                    <form method="post" action="/ideas/{{ idea.id }}/update" class="form-grid compact">
+                        <input type="text" name="title" value="{{ idea.title }}" required>
+                        <input type="text" name="topic" value="{{ idea.topic }}">
+                        <input type="text" name="angle" value="{{ idea.angle }}">
+                        <input type="text" name="target_audience" value="{{ idea.target_audience }}">
+                        <select name="platform_preference">
+                            <option value="both" {% if idea.platform_preference == 'both' %}selected{% endif %}>Both</option>
+                            <option value="linkedin" {% if idea.platform_preference == 'linkedin' %}selected{% endif %}>LinkedIn</option>
+                            <option value="facebook" {% if idea.platform_preference == 'facebook' %}selected{% endif %}>Facebook</option>
+                        </select>
+                        <input type="number" name="priority" value="{{ idea.priority }}" min="1" max="10">
+                        <select name="status">
+                            <option value="new" {% if idea.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="approved" {% if idea.status == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="drafted" {% if idea.status == 'drafted' %}selected{% endif %}>Drafted</option>
+                        </select>
+                        <textarea name="notes" rows="1">{{ idea.notes }}</textarea>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No ideas yet. Run <code>python -m app seed</code> or add one above.</p>
+    {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function toggleEdit(id) {
+    const row = document.getElementById('edit-' + id);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+</script>
+{% endblock %}

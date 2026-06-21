@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}{{ draft.title }} - Draft{% endblock %}
+{% block content %}
+<div class="draft-header">
+    <h1>{{ draft.title }}</h1>
+    <span class="badge badge-{{ draft.status }}">{{ draft.status }}</span>
+</div>
+
+{% if flash_msg == 'approved' %}
+<div class="flash flash-success">Approved — you can publish or schedule anytime from the sidebar.</div>
+{% elif flash_msg == 'published' %}
+<div class="flash flash-success">Publish action completed. Check platform results below.</div>
+{% endif %}
+
+{% if image_error %}
+<div class="alert alert-error">Image generation failed: {{ image_error }}</div>
+{% endif %}
+
+{% if review_error %}
+<div class="alert alert-error">{{ review_error }}</div>
+{% endif %}
+
+{% if draft.quality_warnings %}
+<div class="alert alert-warning">Quality warnings: {{ draft.quality_warnings }}</div>
+{% endif %}
+
+<div class="draft-actions-bar">
+    {% if draft.status != 'rejected' and draft.status != 'published' %}
+    <form method="post" action="/drafts/{{ draft.id }}/reject" style="display:inline">
+        <button type="submit" class="btn btn-danger">Reject</button>
+    </form>
+    <form method="post" action="/drafts/{{ draft.id }}/regenerate-text" style="display:inline">
+        <button type="submit" class="btn btn-secondary">Regenerate Text</button>
+    </form>
+    <form method="post" action="/drafts/{{ draft.id }}/regenerate-image" style="display:inline">
+        <button type="submit" class="btn btn-secondary">Regenerate Image</button>
+    </form>
+    {% endif %}
+</div>
+
+{% if draft.status == 'draft' %}
+<div class="section review-panel">
+    <h2>Review &amp; decide</h2>
+    <p class="help-text">After reviewing the content below, choose what happens next.</p>
+    <form method="post" action="/drafts/{{ draft.id }}/review" id="review-form">
+        <div class="form-group">
+            <label class="radio-option">
+                <input type="radio" name="action" value="approve_only" checked onchange="toggleReviewAction()">
+                <span><strong>Approve only</strong> — save for later, publish manually when ready</span>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="action" value="publish_now" onchange="toggleReviewAction()">
+                <span><strong>Approve &amp; publish now</strong></span>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="action" value="schedule" onchange="toggleReviewAction()">
+                <span><strong>Approve &amp; schedule publishing</strong></span>
+            </label>
+        </div>
+
+        <div id="review-platforms" class="form-group" style="display:none">
+            <label>Platforms</label>
+            <select name="platforms">
+                <option value="linkedin,facebook">LinkedIn + Facebook</option>
+                <option value="linkedin">LinkedIn only</option>
+                <option value="facebook">Facebook only</option>
+            </select>
+        </div>
+
+        <div id="review-schedule" class="form-grid" style="display:none">
+            <div class="form-group">
+                <label>Publish date</label>
+                <input type="date" name="scheduled_date">
+            </div>
+            <div class="form-group">
+                <label>Publish time</label>
+                <input type="time" name="scheduled_time" value="10:00">
+            </div>
+            <div class="form-group checkbox-group">
+                <label><input type="checkbox" name="auto_publish" value="true"> Auto publish at scheduled time</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm</button>
+    </form>
+</div>
+<script>
+function toggleReviewAction() {
+    const action = document.querySelector('#review-form input[name=action]:checked').value;
+    document.getElementById('review-schedule').style.display = action === 'schedule' ? 'grid' : 'none';
+    document.getElementById('review-platforms').style.display = action === 'approve_only' ? 'none' : 'block';
+    const dateInput = document.querySelector('#review-form input[name=scheduled_date]');
+    if (action === 'schedule') dateInput.required = true;
+    else dateInput.required = false;
+}
+toggleReviewAction();
+</script>
+{% endif %}
+
+<div class="draft-layout">
+    <div class="draft-main">
+        <div class="section">
+            <h2>LinkedIn Post</h2>
+            <div class="post-box" id="linkedin-text">{{ draft.linkedin_text }}</div>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyText('linkedin-text')">Copy Text</button>
+        </div>
+
+        <div class="section">
+            <h2>Facebook Post</h2>
+            <div class="post-box" id="facebook-text">{{ draft.facebook_text }}</div>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyText('facebook-text')">Copy Text</button>
+        </div>
+
+        <div class="section">
+            <h2>Edit Draft</h2>
+            <form method="post" action="/drafts/{{ draft.id }}/edit">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ draft.title }}">
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn Text</label>
+                    <textarea name="linkedin_text" rows="8">{{ draft.linkedin_text }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Facebook Text</label>
+                    <textarea name="facebook_text" rows="6">{{ draft.facebook_text }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image Prompt</label>
+                    <textarea name="image_prompt" rows="3">{{ draft.image_prompt }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Hashtags</label>
+                    <input type="text" name="hashtags" value="{{ draft.hashtags }}">
+                </div>
+                <div class="form-group">
+                    <label>CTA</label>
+                    <input type="text" name="cta" value="{{ draft.cta }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+
+        {% if linkedin_data.mode == 'manual' %}
+        <div class="section linkedin-helper">
+            <h2>LinkedIn Manual Publishing</h2>
+            <ol class="checklist">
+                {% for step in linkedin_data.checklist %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ol>
+            {% if draft.status == 'ready_to_publish' %}
+            <form method="post" action="/drafts/{{ draft.id }}/mark-linkedin-published" class="form-inline">
+                <input type="url" name="external_url" placeholder="LinkedIn post URL (optional)">
+                <button type="submit" class="btn btn-primary">Mark as Published</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="draft-sidebar">
+        {% if draft.image_path %}
+        <div class="section">
+            <h2>Generated Image</h2>
+            <img src="/drafts/{{ draft.id }}/download-image" alt="Post image" class="preview-image">
+            <a href="/drafts/{{ draft.id }}/download-image" class="btn btn-sm btn-secondary btn-block" download>Download Image</a>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h2>Image Prompt</h2>
+            <p class="prompt-text">{{ draft.image_prompt }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Hashtags</h2>
+            <p>{{ draft.hashtags }}</p>
+        </div>
+
+        <div class="section">
+            <h2>CTA</h2>
+            <p>{{ draft.cta }}</p>
+        </div>
+
+        {% if draft.status in ('approved', 'ready_to_publish', 'scheduled') %}
+        <div class="section">
+            <h2>Schedule publishing</h2>
+            <form method="post" action="/drafts/{{ draft.id }}/schedule">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="scheduled_date" required>
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <input type="time" name="scheduled_time" value="10:00" required>
+                </div>
+                <div class="form-group">
+                    <label>Platforms</label>
+                    <select name="platforms">
+                        <option value="linkedin,facebook">Both</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label><input type="checkbox" name="auto_publish" value="true"> Auto publish</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Schedule</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Publish now</h2>
+            <form method="post" action="/drafts/{{ draft.id }}/publish">
+                <div class="form-group">
+                    <select name="platforms">
+                        <option value="linkedin,facebook">Both</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Publish Now</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

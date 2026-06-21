@@ -1,0 +1,26 @@
+Create an image generation prompt for a LinkedIn/Facebook social post visual.
+
+Brand: {brand_name}
+Topic: {topic}
+Title: {title}
+Angle: {angle}
+
+The image MUST be an INFOGRAPHIC — NOT abstract art, NOT generic 3D blobs, NOT futuristic glow effects.
+
+Required style:
+- Flat vector infographic / data visualization poster
+- Dark navy background (#0a1628)
+- Blue accent color (#3b82f6), white/light gray text
+- Clear visual structure: header title bar + 2–4 sections with icons
+- Use simple icons (shield, server, lock, chart, checklist, arrow flow)
+- Optional: mini bar chart, comparison columns, numbered steps (1-2-3), or before/after panels
+- 1–3 SHORT bold headline words only (large readable text) — topic keyword + benefit
+- Square 1:1 format, clean margins, professional B2B SaaS look
+- Think: Canva infographic / LinkedIn carousel slide — informative at a glance
+
+Do NOT: abstract waves, random 3D renders, stock-photo people, cluttered tiny text, photorealistic scenes
+
+Respond in JSON format:
+{{
+  "image_prompt": "detailed infographic image generation prompt describing layout, sections, icons, and colors"
+}}

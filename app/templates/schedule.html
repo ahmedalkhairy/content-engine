@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Schedule - InfraPilot Content Engine{% endblock %}
+{% block content %}
+<h1>Content Calendar</h1>
+<p class="subtitle">Auto-generation settings and scheduled publishing for {{ current_project.name }}</p>
+
+{% if message %}
+<div class="flash flash-success">{{ message }}</div>
+{% endif %}
+
+<div class="section automation-panel">
+    <h2>Auto-generation</h2>
+    <p class="help-text">
+        AI creates a fresh idea and full post (text + image) on your schedule.
+        You get a Telegram notification to review — publishing is always your decision.
+        Requires the worker: <code>python -m app worker</code>
+    </p>
+
+    <form method="post" action="/schedule/automation" class="settings-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Enable auto-generation</label>
+                <select name="automation_enabled">
+                    <option value="false" {% if not current_project.automation_enabled %}selected{% endif %}>Off</option>
+                    <option value="true" {% if current_project.automation_enabled %}selected{% endif %}>On</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Generate every (days)</label>
+                <select name="automation_interval_days">
+                    <option value="1" {% if current_project.automation_interval_days == 1 %}selected{% endif %}>Every day</option>
+                    <option value="2" {% if current_project.automation_interval_days == 2 %}selected{% endif %}>Every 2 days</option>
+                    <option value="3" {% if current_project.automation_interval_days == 3 %}selected{% endif %}>Every 3 days</option>
+                    <option value="7" {% if current_project.automation_interval_days == 7 %}selected{% endif %}>Weekly</option>
+                    <option value="14" {% if current_project.automation_interval_days == 14 %}selected{% endif %}>Every 2 weeks</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Generation time</label>
+                <input type="time" name="automation_publish_time"
+                       value="{{ current_project.automation_publish_time or '10:00' }}">
+                <small>When AI runs ({{ current_project.default_timezone or 'Asia/Jerusalem' }})</small>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Posts per cycle</label>
+                <input type="number" name="automation_posts_per_run" min="1" max="5"
+                       value="{{ current_project.automation_posts_per_run or 1 }}">
+                <small>How many posts AI generates each cycle (e.g. 2 = two drafts at once).</small>
+            </div>
+        </div>
+
+        <input type="hidden" name="automation_spacing_days" value="1">
+        <input type="hidden" name="automation_platforms" value="linkedin,facebook">
+        <input type="hidden" name="automation_auto_generate" value="true">
+        <input type="hidden" name="automation_require_approval" value="true">
+        <input type="hidden" name="automation_auto_publish" value="false">
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save settings</button>
+        </div>
+    </form>
+
+    <form method="post" action="/schedule/automation/run" class="inline-form" style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-secondary">Generate now (test)</button>
+        {% if current_project.automation_last_run_at %}
+        <span class="muted">Last run: {{ current_project.automation_last_run_at.strftime('%Y-%m-%d %H:%M') }} UTC</span>
+        {% endif %}
+        {% if automation_due and current_project.automation_enabled %}
+        <span class="badge badge-ready">Due now</span>
+        {% endif %}
+    </form>
+</div>
+
+<h2>Scheduled for publishing</h2>
+<p class="help-text">Posts you approved with a custom publish date appear here.</p>
+{% if scheduled %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Date / Time</th>
+            <th>Draft</th>
+            <th>Platforms</th>
+            <th>Auto Publish</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in scheduled %}
+        <tr>
+            <td>{{ item.scheduled_at.strftime('%Y-%m-%d %H:%M') if item.scheduled_at else '-' }}</td>
+            <td><a href="/drafts/{{ item.draft_id }}">{{ item.draft.title if item.draft else 'Draft #' ~ item.draft_id }}</a></td>
+            <td>{{ item.platforms }}</td>
+            <td>{{ 'Yes' if item.auto_publish else 'No' }}</td>
+            <td><span class="badge badge-{{ item.status }}">{{ item.status }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">Nothing scheduled yet. After AI generates a post, open it in <a href="/drafts">Drafts</a> and choose schedule or publish on approval.</p>
+{% endif %}
+{% endblock %}

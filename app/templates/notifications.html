@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Notifications - Content Engine{% endblock %}
+{% block content %}
+<h1>Telegram Notifications</h1>
+<p class="subtitle">Control what is sent to Telegram when a new draft is generated — {{ current_project.name }}</p>
+
+{% if message %}
+<div class="flash flash-success">{{ message }}</div>
+{% endif %}
+
+<div class="section">
+    <h2>Bot connection</h2>
+    <p class="help-text">
+        Token from @BotFather. Chat ID from <code>python -m app telegram-info</code> after you press Start on the bot.
+    </p>
+    <form method="post" action="/notifications" class="settings-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Bot token</label>
+                <input type="password" name="telegram_bot_token"
+                       value="{{ '••••••••' if config.telegram_bot_token else '' }}"
+                       placeholder="123456:ABC...">
+            </div>
+            <div class="form-group">
+                <label>Chat ID</label>
+                <input type="text" name="telegram_chat_id" value="{{ config.telegram_chat_id }}"
+                       placeholder="5614620558">
+            </div>
+            <div class="form-group">
+                <label>Notifications enabled</label>
+                <select name="telegram_notify_enabled">
+                    <option value="true" {% if config.telegram_notify_enabled %}selected{% endif %}>On</option>
+                    <option value="false" {% if not config.telegram_notify_enabled %}selected{% endif %}>Off</option>
+                </select>
+            </div>
+        </div>
+
+        <h2>What to send on new draft</h2>
+        <p class="help-text">
+            Enable LinkedIn text + image to copy and paste directly into LinkedIn from Telegram.
+        </p>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Title + dashboard link</label>
+                <select name="telegram_send_link">
+                    <option value="true" {% if config.telegram_send_link %}selected{% endif %}>Send</option>
+                    <option value="false" {% if not config.telegram_send_link %}selected{% endif %}>Don't send</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Full LinkedIn text (copy-paste ready)</label>
+                <select name="telegram_send_linkedin_text">
+                    <option value="true" {% if config.telegram_send_linkedin_text %}selected{% endif %}>Send</option>
+                    <option value="false" {% if not config.telegram_send_linkedin_text %}selected{% endif %}>Don't send</option>
+                </select>
+                <small>Includes hashtags and CTA if set.</small>
+            </div>
+            <div class="form-group">
+                <label>LinkedIn image</label>
+                <select name="telegram_send_linkedin_image">
+                    <option value="true" {% if config.telegram_send_linkedin_image %}selected{% endif %}>Send photo</option>
+                    <option value="false" {% if not config.telegram_send_linkedin_image %}selected{% endif %}>Don't send</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Facebook text</label>
+                <select name="telegram_send_facebook_text">
+                    <option value="true" {% if config.telegram_send_facebook_text %}selected{% endif %}>Send</option>
+                    <option value="false" {% if not config.telegram_send_facebook_text %}selected{% endif %}>Don't send</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save settings</button>
+        </div>
+    </form>
+
+    <form method="post" action="/notifications/test" class="inline-form" style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-secondary">Send test notification</button>
+        <span class="muted">Uses your current settings and the latest draft (or a ping if none).</span>
+    </form>
+</div>
+{% endblock %}

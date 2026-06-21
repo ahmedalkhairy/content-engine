@@ -1,0 +1,23 @@
+Generate ONE fresh content idea for {brand_name} social media posts.
+
+Target audience: {target_audience}
+
+Product / company context:
+{product_context}
+
+Positioning:
+{brand_positioning}
+
+Recent topics already covered (avoid repeating or rephrasing these):
+{recent_topics}
+
+Return ONLY valid JSON with this exact structure:
+{{
+  "title": "Compelling post headline (max 120 chars)",
+  "topic": "Core topic in a few words",
+  "angle": "Unique angle or hook for this post",
+  "target_audience": "Specific audience segment for this post",
+  "notes": "Brief notes on why this idea fits the brand now"
+}}
+
+The idea should be educational, practical, and relevant to the brand's domain. Do not repeat recent topics.
