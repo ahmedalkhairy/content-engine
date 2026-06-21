@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 
 import httpx
 
+from app.services.post_branding import normalize_website
 from app.services.project_config import ProjectConfig
 
 
@@ -96,20 +97,22 @@ class MockLLMProvider(LLMProvider):
         title = title_match.group(1).strip() if title_match else "Content Insight"
         topic = topic_match.group(1).strip() if topic_match else "General"
         brand = self.config.brand_name
+        website = normalize_website(self.config.website) or "https://infrapilot.tech"
 
         if "facebook" in user_prompt.lower():
             return json.dumps(
                 {
                     "facebook_text": (
                         f"{title}\n\n"
-                        f"Here's a practical perspective on {topic.lower()}.\n\n"
-                        f"{brand} helps teams work smarter with clear, reliable tools. "
-                        f"No hype — just useful capabilities that solve real problems.\n\n"
-                        f"What challenges are you facing in this area?\n\n"
-                        f"#{brand.replace(' ', '')} #Business"
+                        f"Quick take on {topic.lower()} 👇\n\n"
+                        f"Many teams hit the same wall here. At {brand}, we focus on "
+                        f"practical infrastructure — outbound-only agents, no exposed SSH.\n\n"
+                        f"What's your biggest challenge with {topic.lower()}?\n\n"
+                        f"🔗 Learn more → {website}\n\n"
+                        f"#{brand.replace(' ', '')} #DevOps #Infrastructure"
                     ),
-                    "hashtags": f"{brand.replace(' ', '')},Business,Marketing",
-                    "cta": f"Learn more at {self.config.website or 'our website'}",
+                    "hashtags": f"{brand.replace(' ', '')},DevOps,Infrastructure",
+                    "cta": f"Learn more about {brand} → {website}",
                 }
             )
 
@@ -131,15 +134,16 @@ class MockLLMProvider(LLMProvider):
                 "title": title[:80],
                 "linkedin_text": (
                     f"{title}\n\n"
-                    f"Many teams struggle with {topic.lower()} — and the usual approaches "
-                    f"often create more friction than value.\n\n"
-                    f"At {brand}, we focus on practical solutions: clear workflows, "
-                    f"reliable outcomes, and tools that fit how you actually work.\n\n"
+                    f"Many teams struggle with {topic.lower()} — and the usual fixes "
+                    f"often add risk instead of clarity. 🔐\n\n"
+                    f"At {brand}, we help you manage servers without exposing SSH — "
+                    f"outbound-only agents, centralized visibility, real control.\n\n"
                     f"What's your experience with {topic.lower()}?\n\n"
-                    f"#{brand.replace(' ', '')} #Business #Growth"
+                    f"👉 Learn more → {website}\n\n"
+                    f"#{brand.replace(' ', '')} #DevOps #ServerManagement #Infrastructure"
                 ),
-                "hashtags": f"{brand.replace(' ', '')},Business,Growth",
-                "cta": f"Explore {brand} at {self.config.website or 'our website'}",
+                "hashtags": f"{brand.replace(' ', '')},DevOps,ServerManagement,Infrastructure",
+                "cta": f"Explore {brand} → {website}",
             }
         )
 

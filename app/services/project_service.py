@@ -32,7 +32,7 @@ def create_infrapilot_project(db: Session) -> Project:
         name="InfraPilot",
         slug="infrapilot",
         brand_name=brand.get("brand_name", "InfraPilot"),
-        website="https://infrapilot.io",
+        website="https://infrapilot.tech",
         product_context=(
             "InfraPilot is a SaaS platform for server monitoring and management.\n"
             "Core value: manage and monitor servers without exposing SSH to the internet.\n"
@@ -76,6 +76,17 @@ def get_project_by_id_or_slug(db: Session, project_id: int | None = None, slug: 
     return None
 
 
+def fix_stale_website_urls(db: Session) -> None:
+    """Correct legacy/wrong InfraPilot domains stored in projects."""
+    stale_markers = ("infrapilot.io", "infrapilot.to", "infrapilot.com")
+    for project in db.query(Project).all():
+        website = (project.website or "").strip().lower()
+        if not website:
+            continue
+        if any(marker in website for marker in stale_markers):
+            project.website = "https://infrapilot.tech"
+
+
 def migrate_legacy_data(db: Session) -> None:
     """Assign orphaned records to the default project after schema upgrade."""
     project = ensure_default_project(db)
@@ -92,6 +103,7 @@ def migrate_legacy_data(db: Session) -> None:
     for cat in db.query(ContentCategory).filter(ContentCategory.project_id.is_(None)).all():
         cat.project_id = pid
 
+    fix_stale_website_urls(db)
     db.commit()
 
 

@@ -2,14 +2,15 @@ Write a Facebook post based on the content idea below.
 
 Requirements:
 - Even shorter and more casual than LinkedIn
-- 50 to 100 words max (excluding hashtags)
+- 50 to 100 words max (excluding hashtags and link)
 - Friendly, lively tone — 2–4 emojis placed naturally
 - One clear takeaway + quick tip or question
 - Short lines, easy to skim on mobile
-- Mention {brand_name} at most once
+- MUST mention {brand_name} once
+- End with CTA + full URL on its own line: {brand_website}
 - 2–4 hashtags at the end
 
-Avoid: long paragraphs, formal corporate tone
+Avoid: long paragraphs, formal corporate tone, generic advice with no product tie-in
 
 Content idea:
 Title: {title}
@@ -18,9 +19,11 @@ Angle: {angle}
 Target audience: {target_audience}
 Notes: {notes}
 
+Brand website (must appear in post): {brand_website}
+
 Respond in JSON format:
 {{
-  "facebook_text": "full post text with emojis; hashtags on last line",
+  "facebook_text": "full post text with emojis, brand mention, URL in CTA; hashtags on last line",
   "hashtags": "comma-separated hashtags without #",
-  "cta": "soft call to action or question"
+  "cta": "call to action including {brand_website}"
 }}

@@ -60,11 +60,13 @@ class QualityChecker:
         facebook_text: str,
         hashtags: str,
         brand_name: str = "",
+        website: str = "",
     ) -> QualityResult:
         result = QualityResult()
         combined = f"{linkedin_text} {facebook_text}".lower()
 
         self._check_brand_mentions(combined, result, brand_name)
+        self._check_website_link(f"{linkedin_text} {facebook_text}", result, website)
         self._check_hashtags(hashtags, result)
         self._check_exaggerated_claims(combined, result)
         self._check_buzzwords(combined, result)
@@ -85,6 +87,15 @@ class QualityChecker:
             result.add_warning(f"{brand_name} mentioned {count} times (recommended: 1-2)")
         if count == 0:
             result.add_warning(f"{brand_name} is not mentioned in the post")
+
+    def _check_website_link(self, text: str, result: QualityResult, website: str):
+        if not website:
+            result.add_warning("Project website not configured — add it in Projects settings")
+            return
+        from app.services.post_branding import text_contains_website
+
+        if not text_contains_website(text, website):
+            result.add_error(f"Product URL ({website}) missing from post")
 
     def _check_hashtags(self, hashtags: str, result: QualityResult):
         tags = [t.strip() for t in hashtags.split(",") if t.strip()]

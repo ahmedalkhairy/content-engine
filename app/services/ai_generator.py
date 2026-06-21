@@ -10,6 +10,7 @@ from app.models import ContentIdea, GenerationLog, PostDraft, Project
 from app.services.image_service import ImageGenerationService
 from app.services.llm_provider import get_llm_provider
 from app.services.notifications import NotificationService
+from app.services.post_branding import finalize_post_text, normalize_website
 from app.services.project_config import ProjectConfig, resolve_project_config
 from app.services.quality_checker import QualityChecker
 
@@ -41,8 +42,13 @@ class AIGeneratorService:
             raise ValueError(f"Failed to parse LLM response as JSON: {text[:200]}")
 
     def _prompt_context(self, idea: ContentIdea) -> dict:
+        positioning = self.config.brand_positioning
+        one_liner = positioning[0] if positioning else f"{self.config.brand_name} for modern teams"
+        website = normalize_website(self.config.website)
         return {
             "brand_name": self.config.brand_name,
+            "brand_website": website,
+            "brand_positioning_one_liner": one_liner,
             "title": idea.title,
             "topic": idea.topic or idea.title,
             "angle": idea.angle or "",
@@ -55,6 +61,7 @@ class AIGeneratorService:
         template = self._load_prompt("system")
         return template.format(
             brand_name=ctx["brand_name"],
+            brand_website=ctx["brand_website"],
             brand_tone="\n".join(f"- {t}" for t in self.config.brand_tone) or "- clear and professional",
             brand_avoid="\n".join(f"- {a}" for a in self.config.brand_avoid) or "- hype and overpromising",
             product_context=self.config.product_context or f"{self.config.brand_name} product and services.",
@@ -102,8 +109,31 @@ class AIGeneratorService:
         cta = linkedin_data.get("cta", "") or facebook_data.get("cta", "")
         image_prompt = image_data.get("image_prompt", "")
 
+        website = normalize_website(self.config.website)
+        linkedin_text, cta = finalize_post_text(
+            linkedin_text,
+            brand_name=self.config.brand_name,
+            website=website,
+            cta=cta,
+            platform="linkedin",
+        )
+        facebook_text, fb_cta = finalize_post_text(
+            facebook_text,
+            brand_name=self.config.brand_name,
+            website=website,
+            cta=facebook_data.get("cta", "") or cta,
+            platform="facebook",
+        )
+        if not cta:
+            cta = fb_cta
+
         quality = self.quality_checker.check(
-            title, linkedin_text, facebook_text, hashtags, brand_name=self.config.brand_name
+            title,
+            linkedin_text,
+            facebook_text,
+            hashtags,
+            brand_name=self.config.brand_name,
+            website=website,
         )
 
         draft = PostDraft(
@@ -166,6 +196,7 @@ class AIGeneratorService:
 
         system_prompt = self._load_prompt("system").format(
             brand_name=self.config.brand_name,
+            brand_website=normalize_website(self.config.website),
             brand_tone="\n".join(f"- {t}" for t in self.config.brand_tone) or "- clear and professional",
             brand_avoid="\n".join(f"- {a}" for a in self.config.brand_avoid) or "- hype and overpromising",
             product_context=self.config.product_context or f"{self.config.brand_name} product and services.",

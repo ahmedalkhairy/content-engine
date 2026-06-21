@@ -57,7 +57,14 @@ def main() -> int:
     except Exception as e:
         errors.append(f"image: {e}")
 
-    QualityChecker().check("T", "hello infrapilot server security", "fb", "a,b", cfg.brand_name)
+    QualityChecker().check(
+        "T",
+        "hello infrapilot server security https://infrapilot.tech",
+        "fb infrapilot https://infrapilot.tech",
+        "a,b",
+        cfg.brand_name,
+        cfg.website,
+    )
     SchedulerService(db)
 
     draft = db.query(PostDraft).first()

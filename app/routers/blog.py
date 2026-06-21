@@ -32,7 +32,7 @@ def _public_context(request: Request, project, **extra) -> dict:
         "project": project,
         "site_url": settings.app_public_url.rstrip("/"),
         "brand_name": project.brand_name or project.name,
-        "brand_website": project.website or "https://infrapilot.io",
+        "brand_website": project.website or "https://infrapilot.tech",
         **extra,
     }
 
