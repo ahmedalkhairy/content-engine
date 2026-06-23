@@ -1,0 +1,38 @@
+Write an email based on the brief below.
+
+Email goal / purpose:
+{goal}
+
+Email type: {email_type}
+Target audience: {target_audience}
+Language: {language_label}
+Additional context: {notes}
+
+Brand website (use in CTA when relevant): {brand_website}
+Brand positioning: {brand_positioning_one_liner}
+
+Guidelines by email type:
+- promotional: highlight value, create urgency without being pushy, clear benefit-focused CTA
+- onboarding: welcome the user, explain next steps, make them feel supported
+- account_activation: remind them to complete setup, explain what they're missing, easy action steps
+- server_setup: guide them to add their first server, explain why it matters, step-by-step if helpful
+- re_engagement: acknowledge their absence warmly, remind them of value, low-friction return path
+- announcement: lead with the news, explain impact on the reader, what to do next
+- other: match tone to the stated goal
+
+Requirements:
+- Subject line: compelling, specific, under 60 chars when possible
+- Preview text: 40-90 chars, complements subject (not a repeat)
+- body_html: clean HTML with simple structure (p tags, optional ul/li, one CTA button or link). Use dir="rtl" lang="ar" on wrapper for Arabic
+- body_plain: plain-text version of the same content (no HTML tags)
+- Keep emails concise: 150-350 words for most types, shorter for activation/reminder emails
+- One primary CTA only
+- Sign off with the brand name
+
+Respond in JSON format only:
+{{
+  "subject": "email subject line",
+  "preview_text": "preheader/preview text",
+  "body_html": "<div>...</div>",
+  "body_plain": "plain text version"
+}}

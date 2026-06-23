@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Emails - Content Engine{% endblock %}
+{% block content %}
+<h1>Email Content</h1>
+<p class="subtitle">Generate promotional, onboarding, and customer emails from a simple brief</p>
+
+{% if generate_error %}
+<div class="alert alert-error">Generation failed: {{ generate_error }}</div>
+{% endif %}
+
+<div class="section">
+    <h2>Generate New Email</h2>
+    <form method="post" action="/emails/generate" class="form-grid">
+        <div class="form-group full-width">
+            <label>Email goal / purpose <span class="label-hint">(required)</span></label>
+            <textarea name="goal" rows="3" required placeholder="مثال: تذكير العملاء المسجلين بإضافة أول سيرفر لهم وتفعيل حساباتهم"></textarea>
+            <p class="help-text">Describe what you want this email to achieve — promotion, activation, server setup, etc.</p>
+        </div>
+        <div class="form-group">
+            <label>Email type</label>
+            <select name="email_type">
+                {% for key, label in email_types.items() %}
+                <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Language</label>
+            <select name="language">
+                <option value="ar" selected>Arabic / العربية</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Target audience</label>
+            <input type="text" name="target_audience" value="{{ current_project.default_target_audience or 'DevOps engineers' }}" placeholder="Registered users who haven't added a server">
+        </div>
+        <div class="form-group full-width">
+            <label>Additional notes</label>
+            <textarea name="notes" rows="2" placeholder="Optional: tone preferences, specific offer, deadline, etc."></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Generate Email</button>
+        </div>
+    </form>
+</div>
+
+<div class="section">
+    <h2>Generated Emails ({{ emails|length }})</h2>
+    {% if emails %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Goal</th>
+                <th>Type</th>
+                <th>Language</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in emails %}
+            <tr>
+                <td><a href="/emails/{{ e.id }}">{{ e.subject or '(no subject)' }}</a></td>
+                <td class="truncate-cell">{{ e.goal[:80] }}{% if e.goal|length > 80 %}…{% endif %}</td>
+                <td>{{ email_types.get(e.email_type, e.email_type) }}</td>
+                <td>{{ 'AR' if e.language == 'ar' else 'EN' }}</td>
+                <td>{{ e.created_at.strftime('%Y-%m-%d %H:%M') if e.created_at else '' }}</td>
+                <td class="actions">
+                    <a href="/emails/{{ e.id }}" class="btn btn-sm btn-primary">View</a>
+                    <form method="post" action="/emails/{{ e.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this email draft?')">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No emails yet. Fill in the goal above and click Generate Email.</p>
+    {% endif %}
+</div>
+{% endblock %}

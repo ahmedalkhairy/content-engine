@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}{{ email.subject or 'Email Draft' }} - Content Engine{% endblock %}
+{% block content %}
+<div class="draft-header">
+    <h1>{{ email.subject or 'Email Draft' }}</h1>
+    <span class="badge badge-{{ email.status }}">{{ email.status }}</span>
+</div>
+
+{% if flash_msg == 'saved' %}
+<div class="flash flash-success">Changes saved.</div>
+{% elif flash_msg == 'regenerated' %}
+<div class="flash flash-success">Email regenerated successfully.</div>
+{% endif %}
+
+{% if generate_error %}
+<div class="alert alert-error">Generation failed: {{ generate_error }}</div>
+{% endif %}
+
+<div class="draft-actions-bar">
+    <form method="post" action="/emails/{{ email.id }}/regenerate" style="display:inline">
+        <button type="submit" class="btn btn-secondary">Regenerate</button>
+    </form>
+    <form method="post" action="/emails/{{ email.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this email draft?')">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+    <a href="/emails" class="btn btn-secondary">Back to list</a>
+</div>
+
+<div class="section email-meta">
+    <p><strong>Goal:</strong> {{ email.goal }}</p>
+    <p><strong>Type:</strong> {{ email_types.get(email.email_type, email.email_type) }}</p>
+    <p><strong>Audience:</strong> {{ email.target_audience or '—' }}</p>
+    <p><strong>Language:</strong> {{ 'Arabic' if email.language == 'ar' else 'English' }}</p>
+    {% if email.notes %}
+    <p><strong>Notes:</strong> {{ email.notes }}</p>
+    {% endif %}
+</div>
+
+<div class="draft-layout">
+    <div class="draft-main">
+        <div class="section">
+            <h2>Subject Line</h2>
+            <div class="post-box" id="email-subject">{{ email.subject }}</div>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyText('email-subject')">Copy Subject</button>
+        </div>
+
+        <div class="section">
+            <h2>Preview Text (Preheader)</h2>
+            <div class="post-box" id="email-preview">{{ email.preview_text }}</div>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyText('email-preview')">Copy Preview</button>
+        </div>
+
+        <div class="section">
+            <h2>HTML Body</h2>
+            <div class="email-preview-frame" id="email-html-preview">{{ email.body_html|safe }}</div>
+            <textarea id="email-html" rows="10" readonly style="display:none">{{ email.body_html }}</textarea>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyFromTextarea('email-html')">Copy HTML</button>
+        </div>
+
+        <div class="section">
+            <h2>Plain Text Body</h2>
+            <div class="post-box" id="email-plain">{{ email.body_plain }}</div>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyText('email-plain')">Copy Plain Text</button>
+        </div>
+
+        <div class="section">
+            <h2>Edit Email</h2>
+            <form method="post" action="/emails/{{ email.id }}/edit">
+                <div class="form-group">
+                    <label>Goal</label>
+                    <textarea name="goal" rows="2">{{ email.goal }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Email type</label>
+                    <select name="email_type">
+                        {% for key, label in email_types.items() %}
+                        <option value="{{ key }}" {% if email.email_type == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <select name="language">
+                        <option value="ar" {% if email.language == 'ar' %}selected{% endif %}>Arabic</option>
+                        <option value="en" {% if email.language == 'en' %}selected{% endif %}>English</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Target audience</label>
+                    <input type="text" name="target_audience" value="{{ email.target_audience }}">
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" value="{{ email.subject }}">
+                </div>
+                <div class="form-group">
+                    <label>Preview text</label>
+                    <input type="text" name="preview_text" value="{{ email.preview_text }}">
+                </div>
+                <div class="form-group">
+                    <label>HTML body</label>
+                    <textarea name="body_html" rows="10">{{ email.body_html }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Plain text body</label>
+                    <textarea name="body_plain" rows="8">{{ email.body_plain }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="2">{{ email.notes }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="draft" {% if email.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="ready" {% if email.status == 'ready' %}selected{% endif %}>Ready</option>
+                        <option value="sent" {% if email.status == 'sent' %}selected{% endif %}>Sent</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function copyFromTextarea(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        navigator.clipboard.writeText(el.value);
+        alert('Copied to clipboard!');
+    }
+}
+</script>
+{% endblock %}

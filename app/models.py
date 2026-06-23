@@ -187,11 +187,38 @@ class Setting(Base):
     encrypted: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class EmailDraft(Base):
+    __tablename__ = "email_drafts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    goal: Mapped[str] = mapped_column(Text, nullable=False)
+    email_type: Mapped[str] = mapped_column(String(50), default="promotional")
+    target_audience: Mapped[str] = mapped_column(String(255), default="")
+    language: Mapped[str] = mapped_column(String(20), default="ar")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    subject: Mapped[str] = mapped_column(String(500), default="")
+    preview_text: Mapped[str] = mapped_column(String(500), default="")
+    body_html: Mapped[str] = mapped_column(Text, default="")
+    body_plain: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(50), default="draft")
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )
+
+    project: Mapped["Project"] = relationship("Project")
+    generation_logs: Mapped[list["GenerationLog"]] = relationship(
+        "GenerationLog", back_populates="email_draft"
+    )
+
+
 class GenerationLog(Base):
     __tablename__ = "generation_logs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     draft_id: Mapped[int | None] = mapped_column(ForeignKey("post_drafts.id"), nullable=True)
+    email_draft_id: Mapped[int | None] = mapped_column(ForeignKey("email_drafts.id"), nullable=True)
     provider: Mapped[str] = mapped_column(String(100), default="")
     prompt: Mapped[str] = mapped_column(Text, default="")
     response: Mapped[str] = mapped_column(Text, default="")
@@ -200,3 +227,4 @@ class GenerationLog(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     draft: Mapped["PostDraft | None"] = relationship("PostDraft", back_populates="generation_logs")
+    email_draft: Mapped["EmailDraft | None"] = relationship("EmailDraft", back_populates="generation_logs")

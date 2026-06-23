@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.database import init_db
 from app.deps import AuthRedirect
 from app.log_config import configure_logging
-from app.routers import blog, dashboard, drafts, ideas, notifications, projects, published, schedule, settings as settings_router
+from app.routers import blog, dashboard, drafts, emails, ideas, notifications, projects, published, schedule, settings as settings_router
 
 settings = get_settings()
 configure_logging()
@@ -34,6 +34,7 @@ app.include_router(notifications.router)
 app.include_router(projects.router)
 app.include_router(dashboard.router)
 app.include_router(ideas.router)
+app.include_router(emails.router)
 app.include_router(drafts.router)
 app.include_router(schedule.router)
 app.include_router(published.router)

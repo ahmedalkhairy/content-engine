@@ -541,6 +541,35 @@ h2 {
     margin-bottom: 1rem;
 }
 
+.label-hint {
+    color: var(--text-muted);
+    font-weight: normal;
+    font-size: 0.85rem;
+}
+
+.truncate-cell {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-preview-frame {
+    background: #fff;
+    color: #1a1a1a;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+    min-height: 120px;
+}
+
+.email-meta p {
+    margin-bottom: 0.35rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
 .form-actions {
     margin-top: 0.5rem;
 }

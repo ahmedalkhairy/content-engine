@@ -169,3 +169,8 @@ def run_schema_migrations() -> None:
             ]:
                 if col_name not in draft_cols:
                     conn.execute(text(f"ALTER TABLE post_drafts ADD COLUMN {col_name} {col_def}"))
+
+        if "generation_logs" in tables:
+            log_cols = {c["name"] for c in insp.get_columns("generation_logs")}
+            if "email_draft_id" not in log_cols:
+                conn.execute(text("ALTER TABLE generation_logs ADD COLUMN email_draft_id INTEGER"))

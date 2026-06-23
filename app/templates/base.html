@@ -28,6 +28,7 @@
         <ul class="nav-links">
             <li><a href="/dashboard" class="{% if request.url.path == '/dashboard' %}active{% endif %}">Dashboard</a></li>
             <li><a href="/ideas" class="{% if '/ideas' in request.url.path %}active{% endif %}">Ideas</a></li>
+            <li><a href="/emails" class="{% if '/emails' in request.url.path %}active{% endif %}">Emails</a></li>
             <li><a href="/drafts" class="{% if '/drafts' in request.url.path %}active{% endif %}">Drafts</a></li>
             <li><a href="/schedule" class="{% if '/schedule' in request.url.path %}active{% endif %}">Schedule</a></li>
             <li><a href="/published" class="{% if '/published' in request.url.path %}active{% endif %}">Published</a></li>
